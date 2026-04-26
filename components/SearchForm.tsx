@@ -22,12 +22,6 @@ export default function SearchForm({
   const [artist, setArtist] = useState(initialArtist);
   const [title, setTitle] = useState(initialTitle);
 
-  // Sync when parent triggers a history click
-  useState(() => {
-    setArtist(initialArtist);
-    setTitle(initialTitle);
-  });
-
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
     const a = artist.trim();
