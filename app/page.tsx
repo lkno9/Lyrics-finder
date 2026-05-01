@@ -25,10 +25,8 @@ export default function Home() {
     title: string;
   } | null>(null);
 
-  // Ref to track current search values for SearchForm controlled inputs
-  const searchArtistRef = useRef("");
-  const searchTitleRef = useRef("");
-  const [formKey, setFormKey] = useState(0); // force re-mount on history click
+  const [initialQuery, setInitialQuery] = useState("");
+  const [formKey, setFormKey] = useState(0);
 
   // Load history from localStorage on mount
   useEffect(() => {
@@ -46,7 +44,6 @@ export default function Home() {
 
   function addToHistory(a: string, ti: string) {
     setHistory((prev) => {
-      // Remove duplicate
       const filtered = prev.filter(
         (e) =>
           !(
@@ -81,9 +78,8 @@ export default function Home() {
   }, []);
 
   function handleHistorySelect(a: string, ti: string) {
-    searchArtistRef.current = a;
-    searchTitleRef.current = ti;
-    setFormKey((k) => k + 1); // remount form with new initial values
+    setInitialQuery(`${a} - ${ti}`);
+    setFormKey((k) => k + 1);
     handleSearch(a, ti);
   }
 
@@ -125,8 +121,8 @@ export default function Home() {
 
       {/* Main layout */}
       <div className="flex flex-col lg:flex-row flex-1 gap-0">
-        {/* Sidebar — shown on top on mobile, left on desktop */}
-        <div className="order-2 lg:order-1 lg:sticky lg:top-0 lg:h-screen lg:overflow-y-auto p-4 sm:p-6 lg:pr-0 lg:w-64 xl:w-72 shrink-0">
+        {/* Sidebar */}
+        <div className="order-2 lg:order-1 lg:sticky lg:top-0 lg:h-screen lg:overflow-y-auto p-4 sm:p-6 lg:pr-0 lg:w-72 xl:w-80 shrink-0">
           <HistorySidebar
             locale={locale}
             history={history}
@@ -138,15 +134,13 @@ export default function Home() {
 
         {/* Content */}
         <main className="order-1 lg:order-2 flex-1 p-4 sm:p-6 lg:pl-6 min-w-0">
-          {/* Search */}
           <div className="max-w-3xl">
             <SearchForm
               key={formKey}
               locale={locale}
               onSearch={handleSearch}
               isLoading={isLoading}
-              initialArtist={searchArtistRef.current}
-              initialTitle={searchTitleRef.current}
+              initialQuery={initialQuery}
             />
 
             {/* Loading skeleton */}

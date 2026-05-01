@@ -8,3 +8,10 @@ export interface LyricsResult {
   lyrics: string | null;
   error: "not_found" | "generic" | null;
 }
+
+export interface SuggestionResult {
+  artist: string;
+  title: string;
+  albumCover: string | null;
+  duration: number;
+}
