@@ -143,14 +143,24 @@ export default function Home() {
               initialQuery={initialQuery}
             />
 
-            {/* Loading skeleton */}
+            {/* Loading state */}
             {isLoading && (
-              <div className="mt-6 bg-[#1a1d27] border border-[#2e3347] rounded-xl p-5 space-y-3 animate-pulse">
-                <div className="h-4 bg-[#2e3347] rounded w-1/4" />
-                <div className="h-3 bg-[#2e3347] rounded w-full" />
-                <div className="h-3 bg-[#2e3347] rounded w-5/6" />
-                <div className="h-3 bg-[#2e3347] rounded w-full" />
-                <div className="h-3 bg-[#2e3347] rounded w-3/4" />
+              <div className="mt-6 bg-[#1a1d27] border border-[#2e3347] rounded-xl p-5">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-5 h-5 border-2 border-violet-500 border-t-transparent rounded-full animate-spin" />
+                  <p className="text-violet-300 text-sm font-medium">
+                    {locale === "fr"
+                      ? "Recherche des paroles en cours…"
+                      : "Searching for lyrics…"}
+                  </p>
+                </div>
+                <div className="space-y-2.5 animate-pulse">
+                  <div className="h-3 bg-[#2e3347] rounded w-2/3" />
+                  <div className="h-3 bg-[#2e3347] rounded w-full" />
+                  <div className="h-3 bg-[#2e3347] rounded w-5/6" />
+                  <div className="h-3 bg-[#2e3347] rounded w-full" />
+                  <div className="h-3 bg-[#2e3347] rounded w-3/4" />
+                </div>
               </div>
             )}
 
