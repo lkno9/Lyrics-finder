@@ -17,29 +17,80 @@ export async function fetchLyrics(
   artist: string,
   title: string
 ): Promise<LyricsResult> {
-  // Try with original names first, then cleaned versions
+  const cleanedArtist = cleanForSearch(artist);
+  const cleanedTitle = cleanForSearch(title);
+
+  // Build a list of attempts with different artist/title combos
   const attempts = [
     { artist, title },
-    { artist: cleanForSearch(artist), title: cleanForSearch(title) },
+    { artist: cleanedArtist, title: cleanedTitle },
   ];
 
+  // Try each attempt with both APIs
   for (const attempt of attempts) {
     if (!attempt.artist || !attempt.title) continue;
+
+    // Try lrclib first (more reliable)
+    const lrclibResult = await tryLrclib(attempt.artist, attempt.title);
+    if (lrclibResult.lyrics) return lrclibResult;
 
     // Try lyrics.ovh
     const ovhResult = await tryLyricsOvh(attempt.artist, attempt.title);
     if (ovhResult.lyrics) return ovhResult;
-
-    // Try lrclib.net
-    const lrclibResult = await tryLrclib(attempt.artist, attempt.title);
-    if (lrclibResult.lyrics) return lrclibResult;
   }
 
-  // Last resort: search lrclib by query
+  // Fallback: search lrclib with full query
   const searchResult = await tryLrclibSearch(`${artist} ${title}`);
   if (searchResult.lyrics) return searchResult;
 
+  // Fallback: search lrclib with just the title (handles cover artists)
+  const titleOnlyResult = await tryLrclibSearch(cleanedTitle);
+  if (titleOnlyResult.lyrics) return titleOnlyResult;
+
+  // Fallback: search lyrics.ovh suggestions to find original artist
+  const originalArtistResult = await tryFindOriginalArtist(title);
+  if (originalArtistResult.lyrics) return originalArtistResult;
+
   return { lyrics: null, error: "not_found" };
+}
+
+/**
+ * Try to find lyrics by searching for the song title in suggestions
+ * and attempting lyrics fetch with alternative artists found.
+ */
+async function tryFindOriginalArtist(title: string): Promise<LyricsResult> {
+  try {
+    const cleaned = cleanForSearch(title);
+    const url = `https://api.lyrics.ovh/suggest/${encodeURIComponent(cleaned)}`;
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 6000);
+
+    const res = await fetch(url, { signal: controller.signal });
+    clearTimeout(timeout);
+
+    if (!res.ok) return { lyrics: null, error: null };
+
+    const data = await res.json();
+    if (!data.data || !Array.isArray(data.data)) return { lyrics: null, error: null };
+
+    // Try the first 3 alternative artists
+    const candidates = data.data.slice(0, 3);
+    for (const candidate of candidates) {
+      const altArtist = candidate.artist?.name;
+      const altTitle = candidate.title;
+      if (!altArtist || !altTitle) continue;
+
+      const lrclibResult = await tryLrclib(altArtist, altTitle);
+      if (lrclibResult.lyrics) return lrclibResult;
+
+      const ovhResult = await tryLyricsOvh(altArtist, altTitle);
+      if (ovhResult.lyrics) return ovhResult;
+    }
+
+    return { lyrics: null, error: null };
+  } catch {
+    return { lyrics: null, error: null };
+  }
 }
 
 async function tryLyricsOvh(artist: string, title: string): Promise<LyricsResult> {
