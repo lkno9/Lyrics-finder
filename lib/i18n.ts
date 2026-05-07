@@ -18,6 +18,10 @@ export const translations = {
     clearHistory: "Effacer",
     languageToggle: "EN",
     errorGeneric: "Une erreur est survenue. Réessaie.",
+    speakLyrics: "Écouter les paroles",
+    stopSpeaking: "Arrêter la lecture",
+    speakMessage: "Écouter",
+    ttsLoading: "Génération audio…",
   },
   en: {
     appTitle: "LyricsFind",
@@ -36,6 +40,10 @@ export const translations = {
     clearHistory: "Clear",
     languageToggle: "FR",
     errorGeneric: "An error occurred. Please try again.",
+    speakLyrics: "Listen to lyrics",
+    stopSpeaking: "Stop playback",
+    speakMessage: "Listen",
+    ttsLoading: "Generating audio…",
   },
 } as const;
 
