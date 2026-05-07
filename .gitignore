@@ -10,3 +10,4 @@ out/
 *.pem
 .env
 .env*.local
+tsconfig.tsbuildinfo
